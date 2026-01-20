@@ -1,4 +1,4 @@
-import { use, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import ValuesInput from "./Components/ExpensesInput";
 import ValuesField from "./Components/ValuesField";
@@ -12,14 +12,14 @@ function App() {
       ? JSON.parse(stored)
       : {
           expenseList: [],
-          total: 0,
-          remaining: 0,
-          spent: 0,
+          total: {
+            totalAmount: 0,
+            remainingValue: 0,
+            spentValue: 0,
+          },
         };
   };
   const [total, setTotal] = useState(() => initialData().total);
-  const [remaining, setRemaining] = useState(() => initialData().remaining);
-  const [spent, setSpent] = useState(() => initialData().spent);
   const [expenseList, setExpenseList] = useState(
     () => initialData().expenseList,
   );
@@ -30,60 +30,79 @@ function App() {
     category: "",
   });
 
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [message, setMessage] = useState({
+    type: "",
+    text: "",
+  });
 
   useEffect(() => {
     const data = {
       expenseList,
       total,
-      remaining,
-      spent,
     };
 
     localStorage.setItem("appValues", JSON.stringify(data));
-  }, [expenseList, total, remaining, spent]);
-
-  const itemKey = useRef(1);
+  }, [expenseList, total]);
 
   function addValue() {
     if (value <= 0) {
-      setError("O valor adicionado deve ser maior do que zero.");
+      setMessage({
+        type: "error",
+        text: "O valor adicionado deve ser maior do que zero.",
+      });
       setValue("");
       return;
+    } else {
+      setMessage({
+        type: "success",
+        text: "Valor adicionado com sucesso!",
+      });
     }
-    setRemaining(remaining + +value);
-    setTotal((prev) => prev + Number(value));
+
+    setTotal((prev) => ({
+      ...prev,
+      totalAmount: prev.totalAmount + Number(value),
+      remainingValue: prev.remainingValue + Number(value),
+    }));
     setValue("");
   }
 
   function renderExpense() {
-    setSuccess("");
+    setMessage({ type: "", text: "" });
     if (!expense.value || !expense.description || !expense.category) {
-      setError("Preencha todos os campos antes de salvar!");
+      setMessage({
+        type: "error",
+        text: "Preencha todos os campos antes de salvar!",
+      });
       return;
     }
 
-    if (expense.value > total || expense.value > remaining) {
-      setError("Saldo insuficiente");
+    if (expense.value > total.remainingValue) {
+      setMessage({ type: "error", text: "Saldo insuficiente" });
       return;
     }
 
     if (expense.value <= 0) {
-      setError("O valor do gasto precisa ser maior que 0");
+      setMessage({
+        type: "error",
+        text: "O valor do gasto precisa ser maior que 0",
+      });
       return;
     }
     const newExpense = {
       ...expense,
+      id: crypto.randomUUID(),
       value: Number(expense.value),
       date: new Date().toLocaleDateString("pt-BR"),
     };
 
-    setSpent(() => spent + +expense.value);
-    setRemaining(+remaining - +expense.value);
+    setTotal((prev) => ({
+      ...prev,
+      remainingValue: prev.remainingValue - Number(expense.value),
+      spentValue: prev.spentValue + Number(expense.value),
+    }));
     setExpenseList((prev) => [newExpense, ...prev]);
-    setSuccess("Gasto adicionado com êxito!");
-    setError("");
+    setMessage({ type: "success", text: "Gasto adicionado com êxito!" });
     setExpense((prev) => ({
       ...prev,
       value: "",
@@ -115,14 +134,14 @@ function App() {
 
             {/* Gasto */}
             <div className="bg-white rounded-xl shadow-sm p-4 space-y-4">
-              {error && (
+              {message.type == "error" && (
                 <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">
-                  {error}
+                  {message.text}
                 </p>
               )}
-              {success && (
+              {message.type == "success" && (
                 <p className="text-sm text-green-600 bg-green-50 border border-green-200 rounded-md px-3 py-2">
-                  {success}
+                  {message.text}
                 </p>
               )}
               <ValuesInput
@@ -143,7 +162,7 @@ function App() {
           <div className="lg:col-span-2 bg-white rounded-xl shadow-sm overflow-hidden">
             {/* Header */}
             <div className="text-center bg-zinc-800 text-white px-4 py-3">
-              {!total ? (
+              {!total.totalAmount ? (
                 <p className="text-lg font-semibold m1-2">
                   Nenhum valor adicionado.
                 </p>
@@ -152,14 +171,15 @@ function App() {
                   <p className="text-lg">
                     Total adicionado:
                     <span className="text-lg font-semibold ml-2">
-                      {formatBRL(total)}
+                      {formatBRL(total.totalAmount)}
                     </span>
                   </p>
                   <p>
-                    Valor restante: <span>{formatBRL(remaining)}</span>
+                    Valor restante:{" "}
+                    <span>{formatBRL(total.remainingValue)}</span>
                   </p>
                   <p>
-                    Valor descontado: <span>{formatBRL(spent)}</span>
+                    Valor gasto: <span>{formatBRL(total.spentValue)}</span>
                   </p>
                 </>
               )}
@@ -178,7 +198,7 @@ function App() {
             <ul className="space-y-3 max-h-118 overflow-y-auto pr-2">
               {expenseList.length ? (
                 expenseList.map((expense) => (
-                  <ValuesField key={itemKey.current++} expense={expense} />
+                  <ValuesField key={expense.id} expense={expense} />
                 ))
               ) : (
                 <p className="px-4 py-6 text-sm text-zinc-500">
