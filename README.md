@@ -1,43 +1,47 @@
 # 💰 Controle de Gastos
 
-Aplicação web para controle de gastos pessoais, permitindo adicionar valores, registrar despesas e acompanhar o saldo disponível de forma simples e intuitiva.
+Aplicação web para controle financeiro pessoal, desenvolvida com foco em **organização de estado**, **experiência do usuário** e **persistência de dados**.  
+Permite adicionar valores, registrar gastos e acompanhar automaticamente o saldo disponível.
 
-## ✨ Funcionalidades
+🔗 **Deploy:**  
+https://controle-de-gastos-wheat.vercel.app/
 
-- Adicionar valor total disponível
-- Registrar gastos com:
+---
+
+## 📌 Funcionalidades
+
+- Adição de valores ao saldo total
+- Registro de gastos contendo:
   - Valor
   - Descrição
   - Categoria
-  - Data
-- Validação de campos
+  - Data automática
 - Cálculo automático de:
   - Total adicionado
-  - Valor restante
   - Valor gasto
-- Persistência de dados com LocalStorage
-- Interface responsiva
+  - Saldo restante
+- Persistência de dados utilizando **LocalStorage**
+- Validações e mensagens de erro/sucesso
+- Layout responsivo
+- Componentização e separação de responsabilidades
 
-## 🛠️ Tecnologias Utilizadas
+---
 
-- React
-- Vite
-- JavaScript
-- Tailwind CSS
-- LocalStorage (Web API)
+## 🛠️ Tecnologias utilizadas
 
-## 🚀 Como rodar o projeto
+- **React** (Hooks e componentização)
+- **Vite**
+- **Tailwind CSS**
+- **JavaScript (ES6+)**
+- **LocalStorage API**
+
+---
+
+## 🚀 Como rodar o projeto localmente
 
 ```bash
-# Clone o repositório
 git clone https://github.com/seu-usuario/controle-de-gastos.git
-
-# Acesse a pasta do projeto
 cd controle-de-gastos
-
-# Instale as dependências
 npm install
-
-# Rode o projeto
 npm run dev
 ```
