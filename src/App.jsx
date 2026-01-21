@@ -6,6 +6,45 @@ import GainValue from "./Components/GainValue";
 import formatBRL from "./utils/FormatCurrency";
 
 function App() {
+  function startEditExpense(expense) {
+    setEditingExpense(expense);
+    setExpense({
+      value: expense.value,
+      description: expense.description,
+      category: expense.category,
+    });
+  }
+
+  function updateExpense() {
+    if (!editingExpense) return;
+
+    const updatedExpense = {
+      ...editingExpense,
+      ...expense,
+      value: Number(expense.value),
+    };
+
+    const difference = updatedExpense.value - editingExpense.value;
+
+    setExpenseList((prev) =>
+      prev.map((e) => (e.id === updatedExpense.id ? updatedExpense : e)),
+    );
+
+    setTotal((prev) => ({
+      ...prev,
+      remainingValue: prev.remainingValue - difference,
+      spentValue: prev.spentValue + difference,
+    }));
+
+    setEditingExpense(null);
+    setExpense({ value: "", description: "", category: "" });
+
+    setMessage({
+      type: "success",
+      text: "Gasto atualizado com sucesso!",
+    });
+  }
+
   function removeExpense(id) {
     const expenseToRemove = expenseList.find((e) => e.id === id);
     console.log(expenseToRemove);
@@ -17,6 +56,11 @@ function App() {
       remainingValue: prev.remainingValue + expenseToRemove.value,
       spentValue: prev.spentValue - expenseToRemove.value,
     }));
+
+    setMessage({
+      type: "success",
+      text: "Tarefa removida com sucesso!",
+    });
   }
 
   const initialData = () => {
@@ -32,6 +76,7 @@ function App() {
           },
         };
   };
+  const [editingExpense, setEditingExpense] = useState(null);
   const [total, setTotal] = useState(() => initialData().total);
   const [expenseList, setExpenseList] = useState(
     () => initialData().expenseList,
@@ -163,10 +208,16 @@ function App() {
                 spent={expense.value}
               />
               <button
-                onClick={renderExpense}
-                className="w-full bg-emerald-600 text-white py-2 rounded-md hover:bg-emerald-500 transition"
+                onClick={editingExpense ? updateExpense : renderExpense}
+                className={`w-full py-2 rounded-md text-white transition
+    ${
+      editingExpense
+        ? "bg-yellow-400 hover:bg-yellow-300 text-zinc-900"
+        : "bg-emerald-600 hover:bg-emerald-500"
+    }
+  `}
               >
-                Salvar gasto
+                {editingExpense ? "Atualizar gasto" : "Salvar gasto"}
               </button>
             </div>
           </div>
@@ -212,7 +263,8 @@ function App() {
               {expenseList.length ? (
                 expenseList.map((expense) => (
                   <ValuesField
-                    removeExpense={removeExpense}
+                    onRemove={removeExpense}
+                    onEdit={startEditExpense}
                     key={expense.id}
                     expense={expense}
                   />
