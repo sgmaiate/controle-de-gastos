@@ -5,7 +5,7 @@ export default function ValuesInput(props) {
         <label className="text-sm font-medium text-zinc-700">Gasto</label>
         <input
           type="number"
-          value={props.spent}
+          value={props.expenseValues.value}
           onChange={(event) =>
             props.setExpense((prev) => ({
               ...prev,
@@ -20,7 +20,7 @@ export default function ValuesInput(props) {
         <label className="text-sm font-medium text-zinc-700">Descrição</label>
         <textarea
           maxLength="50"
-          value={props.description}
+          value={props.expenseValues.description}
           onChange={(event) =>
             props.setExpense((prev) => ({
               ...prev,
@@ -34,6 +34,7 @@ export default function ValuesInput(props) {
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium text-zinc-700">Categoria</label>
         <select
+          value={props.expenseValues.category}
           onChange={(event) =>
             props.setExpense((prev) => ({
               ...prev,
@@ -41,7 +42,6 @@ export default function ValuesInput(props) {
             }))
           }
           className="border border-zinc-400 rounded-md px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-zinc-600"
-          defaultValue=""
         >
           <option disabled value="">
             Selecione uma opção

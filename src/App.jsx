@@ -18,31 +18,36 @@ function App() {
   function updateExpense() {
     if (!editingExpense) return;
 
-    const updatedExpense = {
-      ...editingExpense,
-      ...expense,
-      value: Number(expense.value),
-    };
+    const difference = expense.value - editingExpense.value;
+    if (total.remainingValue - difference < 0) {
+      setMessage({
+        type: "error",
+        text: "Valor inválido!",
+      });
+      return;
+    } else {
+      const updatedExpense = {
+        ...editingExpense,
+        ...expense,
+        value: Number(expense.value),
+      };
 
-    const difference = updatedExpense.value - editingExpense.value;
+      setExpenseList((prev) =>
+        prev.map((e) => (e.id === updatedExpense.id ? updatedExpense : e)),
+      );
+      setTotal((prev) => ({
+        ...prev,
+        remainingValue: prev.remainingValue - difference,
+        spentValue: prev.spentValue + difference,
+      }));
+      setEditingExpense(null);
+      setExpense({ value: "", description: "", category: "" });
 
-    setExpenseList((prev) =>
-      prev.map((e) => (e.id === updatedExpense.id ? updatedExpense : e)),
-    );
-
-    setTotal((prev) => ({
-      ...prev,
-      remainingValue: prev.remainingValue - difference,
-      spentValue: prev.spentValue + difference,
-    }));
-
-    setEditingExpense(null);
-    setExpense({ value: "", description: "", category: "" });
-
-    setMessage({
-      type: "success",
-      text: "Gasto atualizado com sucesso!",
-    });
+      setMessage({
+        type: "success",
+        text: "Gasto atualizado com sucesso!",
+      });
+    }
   }
 
   function removeExpense(id) {
@@ -165,6 +170,7 @@ function App() {
       ...prev,
       value: "",
       description: "",
+      category: "",
     }));
   }
 
@@ -202,11 +208,7 @@ function App() {
                   {message.text}
                 </p>
               )}
-              <ValuesInput
-                setExpense={setExpense}
-                description={expense.description}
-                spent={expense.value}
-              />
+              <ValuesInput setExpense={setExpense} expenseValues={expense} />
               <button
                 onClick={editingExpense ? updateExpense : renderExpense}
                 className={`w-full py-2 rounded-md text-white transition
@@ -259,7 +261,7 @@ function App() {
             </div>
 
             {/* Lista */}
-            <ul className="space-y-3 max-h-118 overflow-y-auto pr-2">
+            <ul className="md:space-0 space-y-3 max-h-118 overflow-y-auto pr-2">
               {expenseList.length ? (
                 expenseList.map((expense) => (
                   <ValuesField
