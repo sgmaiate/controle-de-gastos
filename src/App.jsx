@@ -6,6 +6,19 @@ import GainValue from "./Components/GainValue";
 import formatBRL from "./utils/FormatCurrency";
 
 function App() {
+  function removeExpense(id) {
+    const expenseToRemove = expenseList.find((e) => e.id === id);
+    console.log(expenseToRemove);
+    setExpenseList((prev) =>
+      prev.filter((prevExpense) => prevExpense.id !== expenseToRemove.id),
+    );
+    setTotal((prev) => ({
+      ...prev,
+      remainingValue: prev.remainingValue + expenseToRemove.value,
+      spentValue: prev.spentValue - expenseToRemove.value,
+    }));
+  }
+
   const initialData = () => {
     const stored = localStorage.getItem("appValues");
     return stored
@@ -198,7 +211,11 @@ function App() {
             <ul className="space-y-3 max-h-118 overflow-y-auto pr-2">
               {expenseList.length ? (
                 expenseList.map((expense) => (
-                  <ValuesField key={expense.id} expense={expense} />
+                  <ValuesField
+                    removeExpense={removeExpense}
+                    key={expense.id}
+                    expense={expense}
+                  />
                 ))
               ) : (
                 <p className="px-4 py-6 text-sm text-zinc-500">

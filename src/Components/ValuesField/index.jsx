@@ -11,6 +11,12 @@ export default function ValuesField(props) {
       </span>
       <span className="text-md text-zinc-500">{props.expense.category}</span>
       <span>{props.expense.date}</span>
+      <button
+        onClick={() => props.removeExpense(props.expense.id)}
+        className="border-2 bg-blue-200"
+      >
+        Excluir
+      </button>
     </li>
   );
 }
